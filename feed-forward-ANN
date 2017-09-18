@@ -1,0 +1,19 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <alloc.h>
+#include <time.h>
+#include <conio.h>
+
+#define LIMIT 22
+#define ITERATION 1E6
+
+#define ETA 0.010
+#define MOMENTUM 0.600
+#define GAMMA 0.0001
+#define BETA 0.050
+
+#define d(i, j)    *(po + ((j)-1)*LIMIT+(i))
+#define x(i, j)    *(pi + ((j)-1)*LIMIT+(i))
+
+#define TOLERANCE 0.000001
