@@ -17,3 +17,204 @@
 #define x(i, j)    *(pi + ((j)-1)*LIMIT+(i))
 
 #define TOLERANCE 0.000001
+
+//FUNCTIONS
+
+void getStructureInfo(void);
+void assignInitialValues(void);
+void computeForwardValues(void);
+void loadTrainingPairs(void);
+void showTrainingPairs(void);
+void showOutputs(void);
+void computeOutputDeltaValues(int sample);
+void computeHiddenDeltaValues(void);
+void updateParameters(float eta);
+void saveTrainedNetworkParameters(int counter);
+
+float nonLinearFunction(float sum, float threshold);
+float derivativeNonlinearFunction(float sum);
+
+
+// GLOBAL VARIABLES
+
+struct WEIGHTS
+{
+    float w[LIMIT][LIMIT];
+    float w1[LIMIT][LIMIT];
+    float w2[LIMIT][LIMIT];
+}w[5];
+
+struct VECTOR
+[
+    float out[LIMIT];     //output values
+    float del[LIMIT];     //delta values
+    float thr[LIMIT];     //threshold values
+    float SJ[LIMIT];
+}s[5];
+
+int L, layer [LIMIT+1];
+int PAIRS, BACKUP = 1E3;
+float far *pi, *po;
+char train_pairs[20];
+char file_name[20];
+FILE *fp, *fer;
+
+void main()
+{
+    int counter, sample, k, i, choi;
+    float cluster_error, old_cluster_error, eta = ETA, error_sample;
+    
+    pi = (float far * ) farmalloc ((long) (5000));
+    if(pi == NULL)
+    {printf ("\n Out of Memory... \n"); exit(1);}
+    
+    clrscr();
+    getStructureInfo();
+    assignInitialValues();
+    loadTrainingPairs();
+    showTrainingPairs();
+    
+    if((fer = fopen ("ERROR.M", "w")) == NULL)
+    {
+        fprintf(stderr, " ERROR.M File could not open\n");
+        exit(1);
+    }
+    
+    clrscr();
+    old_cluster_error = 0;
+    for(counter = 0; counter <= ITERATION; counter++)
+    {
+        cluster_error = 0;
+        for(sample = 1; sample <= PAIRS; sample++)
+        {
+            error_sample = 0;
+            for(k = 1; k <= layer[0]; k++)
+                s[0].out[k] = x(k, sample);
+            computeForwardValues();
+            showOutputs(sample);
+            
+            for(i = 1; i <= layer[L+1]; i++)
+                error_sample = error_sample + 0.5 * pow ((d(i, sample)-s[L+1].out[i]), 2);
+                
+            cluster_error += error_sample;
+            computeOutputDeltaValues(sample);
+            computeHiddenDeltaValues();
+            updateParameters(eta);
+        }
+        
+        fprintf(fer, " %d  %f \n", counter, cluster_error);
+        
+        //Step Size Adaptation
+        if(cluster_error - old_cluster_error < 0) 
+            eta += GAMMA;
+        else if(cluster_error - old_cluster_error > 0)
+            eta = (1-BETA)*eta;
+        else{//NO CHANGE}
+        
+        old_cluster_error = cluster_error;
+        
+        gotoxy(20, 20);
+        printf("Cluster Error = %f ", cluster_error);
+        
+        gotoxy(20, 21);
+        printf("Number of Cluster Transitions = %d", counter);
+    }
+    
+    // SAVING NETWORK PARAMETERS (OUTPUT)
+    if( counter < ITERATION && ( kbhit() || cluster_error <=  TOLERANCE))
+    {
+        saveTrainedNetworkParameters(counter);
+        gotoxy(20,23);
+        printf("Latest Status Saved.");
+        gotoxy(12,24);
+        printf("Check the <&s> file for details.\n, file_name");
+        break;
+    }
+    
+    // BACKUP NETWORK PARAMETERS
+    if( (counter%BACKUP) == (BACKUP -1))
+    {
+        gotoxy(20,23);
+        printf("Saving automatically...      ");
+        saveTrainedNetworkParameters(counter);
+        gotoxy(20,23);
+        printf("  ");
+    }
+}
+
+    fclose(fer);
+    farfree(pi);
+    farfree(po);
+}
+
+//**************************************************************************
+void getStructureInfo(void)
+{
+
+}
+
+//**************************************************************************
+void assignInitialValues(void)
+{
+
+}
+
+//**************************************************************************
+float nonLinearFunction(float sum, float threshold)
+{
+
+}
+
+//**************************************************************************
+void computeForwardValues(void)
+{
+
+}
+
+//**************************************************************************
+void derivativeNonlinearFunction(float sum)
+{
+
+}
+
+//**************************************************************************
+void loadTrainingPairs(void)
+{
+ 
+}
+
+//**************************************************************************
+void showTrainingPairs(void)
+{
+
+}
+
+//**************************************************************************
+void shoeOutputs(int sample)
+{
+
+}
+
+//**************************************************************************
+void computeOutputDeltaValues(int sample)
+{
+
+}
+
+//**************************************************************************
+void computeHiddenDeltaValues(void)
+{
+
+}
+
+//**************************************************************************
+void updateParameters(float eta)
+{
+
+}
+
+//**************************************************************************
+void saveTrainedNetworkParameters(int counter)
+{
+
+}
