@@ -150,55 +150,160 @@ void main()
 //**************************************************************************
 void getStructureInfo(void)
 {
+    int i;
+    printf("\n\n Training Pairs File Name: ");
+    scanf("%s", train_pairs);
+    printf("\n\n Enter Number of Hidden Layers: ");
+    scanf("%d", &L);
 
+    // (L+1)th layer is the output layer
+    // Zero layer is the input layer
+   
+   printf("Enter Number of Input Neurons: ");
+   scanf("%d", &layer[0]);
+   printf("Enter Number of Output Neurons: ");
+   scanf("%d", &layer[L+1]);
+   
+   for(i=1; i<=L; i++)
+   {
+       printf("Enter Number of Neurons at &d. Layer: ", i);
+       scanf("%d", &layer[i]);
+   }
+   gotoxy(1,16);
+   printf("Enter File Name of Trained Network Parameters to Save: ");
+   scanf("%s", file_name);
 }
 
 //**************************************************************************
 void assignInitialValues(void)
 {
-
+    int k, i, j;
+    
+    randomize();
+    for(k=0; k<=L; k++)
+    {
+        for(i=1; i<=layer[k+1]; i++)
+        {
+            for(j=1; j<=layer[k]; j++)
+            {
+                W[k].w[i][j] = ((float) (rand()%10000))/10000-0.5;
+                W[k].w1[i][j] = ((float) (rand()%10000))/10000-0.5;
+                W[k].w2[i][j] = ((float) (rand()%10000))/10000-0.5;
+            }
+            s[k].thr[i] = ((float) (rand()%10000))/100000-0.5;
+        }
+    }
 }
 
 //**************************************************************************
 float nonLinearFunction(float sum, float threshold)
 {
-
+    float value;
+    value = tanhl(sum - threshold);         //tanhl
+    return(value);
 }
 
 //**************************************************************************
 void computeForwardValues(void)
 {
-
+    int i, j, k;
+    float sum;
+    
+    for(k=0; k<=L; k++)
+    {
+        for(i=1; i<=layer[k+1]; i++)
+        {
+            sum = 0;
+            for(j=1; j<=layer[k]; j++)
+            {
+                sum = sum + W[k].w[i][j] * s[k].out[j];
+            }
+            s[k+1].SJ[i] = sum;
+            if(k!=L) 
+                s[k].out[i] = nonLinearFunction(s[k+1].SJ[i], s[k+1].thr[i]);
+            else
+                s[k+1].out[i] = sum - s[k+1].thr[i];
+        }
+    }
 }
 
 //**************************************************************************
 void derivativeNonlinearFunction(float sum)
 {
-
+    float derivative;
+    derivative = (1 - sum*sum);
+    return(derivative);
 }
 
 //**************************************************************************
 void loadTrainingPairs(void)
 {
- 
+    int i, j;
+    float temp;
+    
+    // Load Training Pairs to Memory
+    // Every Single Consecutive Layer[0] -elements Groups is one Train
+    // Constitute Input of Pair 
+    // x(<which input of network>,<which sample(in order)>)
+    // d(<which output of network>, <which sample(in order)>)
+    
+    if((fp = fopen( train_pairs, "r")) == NULL)
+    {
+        fprintf(stderr, "File Can Not Open: %s\n", train_pairs);
+        exit(1);
+    }
+    fscanf(fp, "%d", &PAIRS);
+    
+    for(j=1; j<=PAIRS; j++)
+    {
+        for(i=1; i<=layer[0]; i++)
+        {
+            fscanf(fp, "%f", &temp);
+            d(i, j) = temp;
+        }
+    }
+    fclose(fp);
 }
 
 //**************************************************************************
 void showTrainingPairs(void)
 {
-
+    int i, j;
+    
+    clrscr();
+    for(j=1; j<=PAIRS; j++)
+    {
+        for(i=1; i<=layer[0]; i++)
+        {
+            printf("x(%d, %d) = %f ", i, j, x(i, j));
+        }
+        for(i=1; i<=layer[L+1]; i++)
+        {
+            print("d(%d, %d) = %f\n", i, j, d(i, j));
+        }
+    }
+    getch();
 }
 
 //**************************************************************************
-void shoeOutputs(int sample)
+void showOutputs(int sample)
 {
-
+    int i, j;
+    
+    for(i=1; i<=PAIRS; i++)
+    {
+        gotoxy(5, 1 + sample%15);
+        for(j=1; j<=layer[L+1]; j++)
+        {
+            printf("out = %f", s[L+1].out[1]);
+        }
+    }
 }
 
 //**************************************************************************
 void computeOutputDeltaValues(int sample)
 {
-
+    
 }
 
 //**************************************************************************
