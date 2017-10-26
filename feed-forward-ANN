@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <alloc.h>
+//#include <alloc.h>
 #include <time.h>
 #include <conio.h>
 
@@ -45,7 +45,7 @@ struct WEIGHTS
 }w[5];
 
 struct VECTOR
-[
+{
     float out[LIMIT];     //output values
     float del[LIMIT];     //delta values
     float thr[LIMIT];     //threshold values
@@ -375,7 +375,7 @@ void saveTrainedNetworkParameters(int counter)
     fprintf(fw, "   Input Vector Size  ->  %d\n", layer[0]);
     fprintf(fw, "   Output Vector Size  ->  %d\n", layer[L+1]);
     
-    for(i=1; i<=L; İ++)
+    for(i=1; i<=L; i++)
     {
         fprintf(fw, "   Number of Neurons at [%d]. Hidden Layer  ->  %d\n", i, layer[i]);
     }
@@ -392,7 +392,7 @@ void saveTrainedNetworkParameters(int counter)
             }
             fprintf(fw, "   [ %f ]\n", s[matrix+1].thr[i]);
         }
-        fprintf(fw, "\n\n")
+        fprintf(fw, "\n\n");
     }
     fprintf(fw, " Number of Cluster Transition = %d", counter);
     fclose(fw);
