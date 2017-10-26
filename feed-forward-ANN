@@ -303,23 +303,97 @@ void showOutputs(int sample)
 //**************************************************************************
 void computeOutputDeltaValues(int sample)
 {
+    int j;
     
+    for(j=1; j<=layer[L+1]; j++)
+    {
+        s[L+1].del[j] = ( d(j, sample)-s[L+1].out[j] );
+    }
 }
 
 //**************************************************************************
 void computeHiddenDeltaValues(void)
 {
-
+    float derivative, sum;
+    int l, j, k;
+    
+    // Delta Values for Hidden Layers
+    // k index: Layer Order
+    
+    for(k=L; k>=1; k--)
+    {
+        for(j=1; j<=layer[k]; j++)
+        {
+            sum = 0;
+            for(l=1; l<=layer[k+1]; l++)
+            {
+                sum = sum + s[k+1].del[l] * W[k].w[l][j];
+            }
+            derivative = derivativeNonlinearFunction(s[k].out[j]);
+            s[k].del[j] = sum * derivative;
+        }
+    }
 }
 
 //**************************************************************************
 void updateParameters(float eta)
 {
-
+    int kk, i, j;
+    float DIFF, MOMENTA;
+    
+    // Apply Parametre Updating Code
+    for(kk=0; kk<=L; kk++)  // kk -> Scans Interlayer Weight Matrixes
+    {
+        for(i=1; i<=layer[kk+1]; i++)   // i -> Scans Neurons Close to the Output
+        {
+            for(j=1; j<=layer[kk]; j++)    // j -> Scans Neurons Close to the Input
+            {
+                DIFF = eta * s[kk+1].del[i] * s[kk].out[j];
+                W[kk].w2[i][j] = W[kk].w1[i][j];
+                W[kk].w1[i][j] = W[kk].w[i][j];
+                MOMENTA = MOMENTUM * (W[kk].w1[i][j] - W[kk].w2[i][j]);
+                W[kk].w[i][j] += (DIFF + MOMENTA);
+            }
+            s[kk+1].thr[i] += eta * s[kk+1].del[i] * (-1);
+        }
+    }
 }
 
 //**************************************************************************
 void saveTrainedNetworkParameters(int counter)
 {
-
+    FILE *fw;
+    int i, j, matrix;
+    
+    if((fw = fopen( file_name, "w")) == NULL)
+    {
+        fprintf(stderr, "File Couldn't Open: %s\n", file_name);
+        exit(1);
+    }
+    fprintf(fw, "\n     *** TRAINED NETWORK PARAMETERS ***      \n\n");
+    fprintf(fw, "   Number of Hidden Layer  ->  %d\n", L);
+    fprintf(fw, "   Input Vector Size  ->  %d\n", layer[0]);
+    fprintf(fw, "   Output Vector Size  ->  %d\n", layer[L+1]);
+    
+    for(i=1; i<=L; İ++)
+    {
+        fprintf(fw, "   Number of Neurons at [%d]. Hidden Layer  ->  %d\n", i, layer[i]);
+    }
+    
+    fprintf(fw, "\n    ==== WEIGHT MATRIXES ====\n\n");
+    
+    for(matrix=0; matrix<=L; matrix++)
+    {
+        for(i=1; i<=layer[matrix+1]; i++)
+        {
+            for(j=1; j<=layer[matrix]; j++)
+            {
+                fprintf(fw, "   w %f    ", W[matrix].w[i][j]);
+            }
+            fprintf(fw, "   [ %f ]\n", s[matrix+1].thr[i]);
+        }
+        fprintf(fw, "\n\n")
+    }
+    fprintf(fw, " Number of Cluster Transition = %d", counter);
+    fclose(fw);
 }
